@@ -19,6 +19,17 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
 
   <style>
+    /* Cross-document fade transition on nav between pages */
+    @view-transition {
+      navigation: auto;
+    }
+
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: 0.35s;
+      animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
     :root {
       --bg:         #FAFAF7;
       --surface:    #FFFFFF;
