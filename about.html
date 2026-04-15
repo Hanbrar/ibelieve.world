@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — ibelieve.world</title>
+  <meta name="description" content="ibelieve.world is an experimental AI and technology product development lab founded by Hanryck Brar." />
+
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="apple-touch-icon" href="favicon.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- GSAP (entrance only) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
+
+  <style>
+    :root {
+      --bg:         #FAFAF7;
+      --surface:    #FFFFFF;
+      --ink:        #141414;
+      --ink-soft:   #3A3A3A;
+      --muted:      #6B6B6B;
+      --faint:      #A0A0A0;
+      --border:     #E8E6E1;
+      --border-2:   #D8D5CE;
+      --rose:       #C8102E;
+      --rose-soft:  #F4D9DE;
+      --leaf:       #2F5D32;
+      --radius:     12px;
+      --radius-lg:  18px;
+      --max-w:      1100px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-weight: 400;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    ul { list-style: none; }
+
+    ::selection { background: var(--rose); color: #fff; }
+
+    .pixel {
+      font-family: 'Press Start 2P', monospace;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+    }
+
+    /* NAV */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      width: 100%;
+      height: 72px;
+      padding: 0 2rem;
+      background: rgba(250, 250, 247, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-brand { display: flex; align-items: center; gap: 0.7rem; }
+    .nav-brand img { height: 38px; width: auto; object-fit: contain; }
+    .nav-brand span { font-size: 0.65rem; color: var(--ink); line-height: 1; white-space: nowrap; }
+
+    .nav-right { display: flex; align-items: center; gap: 2rem; }
+    .nav-links { display: flex; align-items: center; gap: 1.75rem; }
+    .nav-links a {
+      font-size: 0.875rem; font-weight: 500; color: var(--ink-soft);
+      position: relative; transition: color 0.2s ease;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1.5px;
+      background: var(--rose); transition: width 0.25s ease;
+    }
+    .nav-links a:hover { color: var(--rose); }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-links a.active { color: var(--rose); }
+    .nav-links a.active::after { width: 100%; }
+
+    .nav-icons {
+      display: flex; align-items: center; gap: 1rem;
+      padding-left: 1.25rem; border-left: 1px solid var(--border);
+    }
+    .nav-icons a {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 8px;
+      color: var(--ink-soft); transition: color 0.2s ease, background 0.2s ease;
+    }
+    .nav-icons a:hover { color: var(--rose); background: var(--rose-soft); }
+    .nav-icons svg { width: 17px; height: 17px; }
+
+    .nav-toggle {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 6px;
+    }
+    .nav-toggle span {
+      display: block; width: 22px; height: 2px; background: var(--ink);
+      border-radius: 2px; transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-toggle.open span:nth-child(2) { opacity: 0; }
+    .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* PAGE */
+    .page {
+      padding: 5rem 2rem 6rem;
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--rose);
+      margin-bottom: 1rem;
+    }
+
+    .page-header h1 {
+      font-size: clamp(1.1rem, 2.4vw, 1.6rem);
+      color: var(--ink);
+      line-height: 1.55;
+    }
+
+    /* IMAGE */
+    .about-image-wrap {
+      max-width: 860px;
+      margin: 0 auto 3.5rem;
+    }
+
+    .about-image {
+      width: 100%;
+      aspect-ratio: 3 / 2;
+      object-fit: cover;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+    }
+
+    .about-credit {
+      font-size: 0.8rem;
+      color: var(--faint);
+      margin-top: 0.75rem;
+      text-align: center;
+      font-style: italic;
+    }
+    .about-credit a {
+      color: var(--faint);
+      border-bottom: 1px solid transparent;
+      transition: color 0.2s ease, border-color 0.2s ease;
+    }
+    .about-credit a:hover {
+      color: var(--rose);
+      border-bottom-color: var(--rose);
+    }
+
+    /* CONTENT */
+    .about-content {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .about-content h2 {
+      font-size: clamp(1rem, 2vw, 1.35rem);
+      line-height: 1.55;
+      color: var(--ink);
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .mission {
+      font-size: 1.15rem;
+      line-height: 1.75;
+      color: var(--ink);
+      font-weight: 400;
+      margin-bottom: 2.5rem;
+      padding: 1.75rem 1.75rem 1.75rem 2rem;
+      border-left: 3px solid var(--rose);
+      background: var(--surface);
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+
+    .about-content p {
+      font-size: 1rem;
+      line-height: 1.85;
+      color: var(--ink-soft);
+      margin-bottom: 1.4rem;
+    }
+
+    .signature {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.95rem;
+      color: var(--ink);
+      line-height: 1.8;
+    }
+    .signature .name { font-weight: 600; }
+    .signature .role { color: var(--muted); font-size: 0.88rem; }
+
+    /* FOOTER */
+    footer {
+      background: var(--bg);
+      padding: 3rem 2rem 2.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .footer-inner {
+      max-width: var(--max-w); margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1.5rem;
+    }
+    .footer-brand { display: flex; align-items: center; gap: 0.6rem; }
+    .footer-brand img { height: 28px; width: auto; object-fit: contain; }
+    .footer-brand span { font-size: 0.58rem; color: var(--ink-soft); }
+    .footer-copy { font-size: 0.82rem; color: var(--faint); }
+    .footer-icons { display: flex; align-items: center; gap: 0.75rem; }
+    .footer-icons a {
+      width: 34px; height: 34px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); transition: color 0.2s ease, background 0.2s ease;
+    }
+    .footer-icons a:hover { color: var(--rose); background: var(--rose-soft); }
+    .footer-icons svg { width: 16px; height: 16px; }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .page { padding: 3.5rem 1.5rem 4.5rem; }
+      .mission { font-size: 1.05rem; padding: 1.5rem; }
+    }
+
+    @media (max-width: 768px) {
+      .navbar { padding: 0 1.25rem; height: 64px; }
+      .nav-brand img { height: 32px; }
+      .nav-brand span { font-size: 0.55rem; }
+      .nav-toggle { display: flex; }
+
+      .nav-right {
+        position: fixed; top: 64px; left: 0; right: 0;
+        flex-direction: column; gap: 0; align-items: stretch;
+        background: rgba(250, 250, 247, 0.98);
+        backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+        border-bottom: 1px solid var(--border);
+        padding: 1rem 1.5rem 1.5rem;
+        transform: translateY(-110%);
+        transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+      .nav-right.open { transform: translateY(0); }
+      .nav-links { flex-direction: column; align-items: flex-start; gap: 0; width: 100%; }
+      .nav-links li { width: 100%; padding: 0.7rem 0; border-bottom: 1px solid var(--border); }
+      .nav-links a::after { display: none; }
+
+      .nav-icons {
+        padding-left: 0; padding-top: 0.75rem;
+        border-left: none; justify-content: flex-start; width: 100%;
+      }
+
+      .mission { padding: 1.25rem 1.25rem 1.25rem 1.5rem; }
+      .footer-inner { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand" aria-label="ibelieve.world">
+      <img src="logo.png" alt="ibelieve.world" />
+      <span class="pixel">ibelieve.world</span>
+    </a>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+
+    <div class="nav-right" id="navRight">
+      <ul class="nav-links">
+        <li><a href="index.html#products">Products</a></li>
+        <li><a href="about.html" class="active">About</a></li>
+      </ul>
+
+      <div class="nav-icons">
+        <a href="https://github.com/Hanbrar" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/>
+          </svg>
+        </a>
+        <a href="https://x.com/ItsHB17" target="_blank" rel="noopener noreferrer" aria-label="X">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.253 5.622 4.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ABOUT PAGE -->
+  <main class="page">
+    <header class="page-header">
+      <span class="eyebrow">About</span>
+      <h1 class="pixel">Our Mission</h1>
+    </header>
+
+    <div class="about-image-wrap">
+      <img src="image.jpg" alt="San Francisco coastline with a single flower blooming from a concrete wall" class="about-image" />
+      <p class="about-credit">
+        Photo by <a href="https://www.instagram.com/davidsusu_" target="_blank" rel="noopener noreferrer">David Yao</a>
+      </p>
+    </div>
+
+    <div class="about-content">
+      <p class="mission">
+        Our mission is to create the best possible AI experiences for users, push the human race forward, and improve the future of humanity through products built across every sector we touch.
+      </p>
+
+      <p>
+        ibelieve.world is an experimental AI and technology product development lab focused on building and testing new ideas around how people interact with intelligence.
+      </p>
+
+      <p>
+        I am Hanryck Brar, currently the only person working on this as an early stage startup experiment. The goal is to move quickly, explore different product directions, and learn directly from real user behavior.
+      </p>
+
+      <p>
+        This lab serves as the foundation for multiple AI products, including SuperflowAI and future tools designed to improve how people use technology in their daily lives.
+      </p>
+
+      <p>
+        Over the next week, I will be releasing the first paid product from the company.
+      </p>
+
+      <p>
+        The long term vision is to move to the Bay Area and continue building ambitious projects at a much larger scale, while bringing in more people over time to grow the team.
+      </p>
+
+      <p>
+        This is just the starting point.
+      </p>
+
+      <div class="signature">
+        <div class="name">&#45;Hanryck Brar</div>
+        <div class="role">Founder of ibelieve.world</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <a href="index.html" class="footer-brand">
+        <img src="logo.png" alt="ibelieve.world" />
+        <span class="pixel">ibelieve.world</span>
+      </a>
+
+      <p class="footer-copy">&copy; 2026 ibelieve.world. All rights reserved.</p>
+
+      <div class="footer-icons">
+        <a href="https://github.com/Hanbrar" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/>
+          </svg>
+        </a>
+        <a href="https://x.com/ItsHB17" target="_blank" rel="noopener noreferrer" aria-label="X">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.253 5.622 4.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /* Mobile nav */
+    const navToggle = document.getElementById('navToggle');
+    const navRight  = document.getElementById('navRight');
+
+    navToggle.addEventListener('click', () => {
+      const open = navRight.classList.toggle('open');
+      navToggle.classList.toggle('open', open);
+      navToggle.setAttribute('aria-expanded', open);
+    });
+
+    navRight.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        navRight.classList.remove('open');
+        navToggle.classList.remove('open');
+        navToggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    /* Entrance animations */
+    window.addEventListener('load', () => {
+      if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+      gsap.registerPlugin(ScrollTrigger);
+
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      tl.from(".page-header", { opacity: 0, y: 20, duration: 0.8 })
+        .from(".about-image-wrap", { opacity: 0, y: 24, duration: 1 }, "-=0.5")
+        .from(".about-content > *", { opacity: 0, y: 16, duration: 0.6, stagger: 0.08 }, "-=0.6");
+    });
+  </script>
+
+</body>
+</html>

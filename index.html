@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ibelieve.world — AI Lab</title>
+  <meta name="description" content="An experimental AI and technology product development lab focused on building the best possible AI experiences for users." />
+
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="apple-touch-icon" href="favicon.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- GSAP (kept for subtle entrance + scroll reveals only) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
+
+  <style>
+    /* =============================================
+       DESIGN TOKENS — white editorial palette
+       ============================================= */
+    :root {
+      --bg:         #FAFAF7;
+      --surface:    #FFFFFF;
+      --ink:        #141414;
+      --ink-soft:   #3A3A3A;
+      --muted:      #6B6B6B;
+      --faint:      #A0A0A0;
+      --border:     #E8E6E1;
+      --border-2:   #D8D5CE;
+      --rose:       #C8102E;     /* matches logo */
+      --rose-soft:  #F4D9DE;
+      --leaf:       #2F5D32;
+      --radius:     12px;
+      --radius-lg:  18px;
+      --max-w:      1100px;
+    }
+
+    /* Reset */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-weight: 400;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    ul { list-style: none; }
+
+    ::selection { background: var(--rose); color: #fff; }
+
+    /* Pixel font applied ONLY to headings (brand, h1, h2, h3) */
+    .pixel {
+      font-family: 'Press Start 2P', monospace;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+    }
+
+    /* =============================================
+       NAVBAR
+       ============================================= */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      width: 100%;
+      height: 72px;
+      padding: 0 2rem;
+      background: rgba(250, 250, 247, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+
+    .nav-brand img {
+      height: 38px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .nav-brand span {
+      font-size: 0.65rem;
+      color: var(--ink);
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.75rem;
+    }
+
+    .nav-links a {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--ink-soft);
+      position: relative;
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 1.5px;
+      background: var(--rose);
+      transition: width 0.25s ease;
+    }
+
+    .nav-links a:hover { color: var(--rose); }
+    .nav-links a:hover::after { width: 100%; }
+
+    .nav-icons {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding-left: 1.25rem;
+      border-left: 1px solid var(--border);
+    }
+
+    .nav-icons a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      color: var(--ink-soft);
+      transition: color 0.2s ease, background 0.2s ease;
+    }
+
+    .nav-icons a:hover {
+      color: var(--rose);
+      background: var(--rose-soft);
+    }
+
+    .nav-icons svg { width: 17px; height: 17px; }
+
+    /* Mobile nav toggle */
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+    }
+
+    .nav-toggle span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--ink);
+      border-radius: 2px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-toggle.open span:nth-child(2) { opacity: 0; }
+    .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* =============================================
+       LAYOUT HELPERS
+       ============================================= */
+    .container {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .section {
+      padding: 7rem 2rem;
+    }
+
+    .section-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--rose);
+      margin-bottom: 1.25rem;
+    }
+
+    /* =============================================
+       HERO
+       ============================================= */
+    #hero {
+      position: relative;
+      min-height: calc(100vh - 72px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 5rem 2rem 6rem;
+      background: var(--bg);
+    }
+
+    .hero-inner {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .hero-logo {
+      width: 240px;
+      height: auto;
+      margin: 0 auto 2.5rem;
+      filter: drop-shadow(0 12px 28px rgba(200, 16, 46, 0.18));
+    }
+
+    .hero-inner h1 {
+      font-size: clamp(1.1rem, 3vw, 1.85rem);
+      line-height: 1.7;
+      color: var(--ink);
+      margin-bottom: 2rem;
+    }
+
+    .hero-inner h1 .dot { color: var(--rose); }
+
+    .hero-tagline {
+      font-size: clamp(1.02rem, 1.6vw, 1.15rem);
+      font-weight: 400;
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 2.75rem;
+      line-height: 1.75;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.8rem 1.6rem;
+      border-radius: 100px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: var(--ink);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--rose);
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--ink);
+      border-color: var(--border-2);
+    }
+    .btn-ghost:hover {
+      border-color: var(--ink);
+      background: #fff;
+    }
+
+    .btn svg { width: 14px; height: 14px; }
+
+    /* =============================================
+       ABOUT
+       ============================================= */
+    #about {
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+    }
+
+    .about-image-wrap {
+      max-width: 860px;
+      margin: 0 auto 3.5rem;
+    }
+
+    .about-image {
+      width: 100%;
+      aspect-ratio: 3 / 2;
+      object-fit: cover;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+    }
+
+    .about-credit {
+      font-size: 0.8rem;
+      color: var(--faint);
+      margin-top: 0.75rem;
+      text-align: center;
+      font-style: italic;
+    }
+    .about-credit a {
+      color: var(--faint);
+      border-bottom: 1px solid transparent;
+      transition: color 0.2s ease, border-color 0.2s ease;
+    }
+    .about-credit a:hover {
+      color: var(--rose);
+      border-bottom-color: var(--rose);
+    }
+
+    .about-content {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .about-content h2 {
+      font-size: clamp(1rem, 2vw, 1.35rem);
+      line-height: 1.55;
+      color: var(--ink);
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .mission {
+      font-size: 1.15rem;
+      line-height: 1.75;
+      color: var(--ink);
+      font-weight: 400;
+      margin-bottom: 2.5rem;
+      padding: 1.75rem 1.75rem 1.75rem 2rem;
+      border-left: 3px solid var(--rose);
+      background: var(--surface);
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+
+    .about-content p {
+      font-size: 1rem;
+      line-height: 1.85;
+      color: var(--ink-soft);
+      margin-bottom: 1.4rem;
+    }
+
+    .signature {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.95rem;
+      color: var(--ink);
+      line-height: 1.8;
+    }
+
+    .signature .name { font-weight: 600; }
+    .signature .role { color: var(--muted); font-size: 0.88rem; }
+
+    /* =============================================
+       PRODUCTS
+       ============================================= */
+    #products {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .products-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .products-header h2 {
+      font-size: clamp(1rem, 2vw, 1.35rem);
+      color: var(--ink);
+      margin-bottom: 1rem;
+    }
+
+    .products-header p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    /* Product Card */
+    .product-card {
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      color: var(--ink);
+      transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  box-shadow 0.3s ease,
+                  border-color 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--rose);
+      box-shadow: 0 18px 40px rgba(20, 20, 20, 0.08),
+                  0 2px 8px rgba(200, 16, 46, 0.06);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-logo {
+      width: 56px;
+      height: 56px;
+      flex-shrink: 0;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .card-logo img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+    }
+
+    .card-tag {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--rose);
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+
+    .product-card h3 {
+      font-size: 0.78rem;
+      color: var(--ink);
+      line-height: 1.4;
+    }
+
+    .product-card p {
+      font-size: 0.92rem;
+      line-height: 1.7;
+      color: var(--muted);
+      flex-grow: 1;
+      margin-bottom: 1.75rem;
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .card-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--ink);
+      transition: gap 0.2s ease, color 0.2s ease;
+    }
+    .card-primary:hover { gap: 0.6rem; color: var(--rose); }
+    .card-primary svg { width: 13px; height: 13px; }
+
+    .card-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      color: var(--faint);
+      transition: color 0.2s ease;
+    }
+    .card-secondary:hover { color: var(--ink); }
+    .card-secondary svg { width: 14px; height: 14px; }
+
+    /* =============================================
+       FOOTER
+       ============================================= */
+    footer {
+      background: var(--bg);
+      padding: 3rem 2rem 2.5rem;
+    }
+
+    .footer-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .footer-brand img {
+      height: 28px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .footer-brand span {
+      font-size: 0.58rem;
+      color: var(--ink-soft);
+    }
+
+    .footer-copy {
+      font-size: 0.82rem;
+      color: var(--faint);
+    }
+
+    .footer-icons {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .footer-icons a {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      transition: color 0.2s ease, background 0.2s ease;
+    }
+
+    .footer-icons a:hover {
+      color: var(--rose);
+      background: var(--rose-soft);
+    }
+
+    .footer-icons svg { width: 16px; height: 16px; }
+
+    /* =============================================
+       RESPONSIVE
+       ============================================= */
+    @media (max-width: 900px) {
+      .section { padding: 5rem 1.5rem; }
+      .hero-logo { width: 200px; margin-bottom: 2rem; }
+      .mission { font-size: 1.05rem; padding: 1.5rem; }
+    }
+
+    @media (max-width: 768px) {
+      .navbar { padding: 0 1.25rem; height: 64px; }
+      .nav-brand img { height: 32px; }
+      .nav-brand span { font-size: 0.55rem; }
+
+      .nav-toggle { display: flex; }
+
+      .nav-right {
+        position: fixed;
+        top: 64px;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        gap: 0;
+        align-items: stretch;
+        background: rgba(250, 250, 247, 0.98);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border-bottom: 1px solid var(--border);
+        padding: 1rem 1.5rem 1.5rem;
+        transform: translateY(-110%);
+        transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+
+      .nav-right.open { transform: translateY(0); }
+
+      .nav-links {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
+        width: 100%;
+      }
+
+      .nav-links li {
+        width: 100%;
+        padding: 0.7rem 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .nav-links a::after { display: none; }
+
+      .nav-icons {
+        padding-left: 0;
+        padding-top: 0.75rem;
+        border-left: none;
+        justify-content: flex-start;
+        width: 100%;
+      }
+
+      .hero-inner h1 { font-size: 0.95rem; line-height: 1.75; }
+
+      .products-grid { grid-template-columns: 1fr; }
+
+      .footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .mission { padding: 1.25rem 1.25rem 1.25rem 1.5rem; }
+    }
+
+    /* Reduce motion */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ==================== NAVBAR ==================== -->
+  <nav class="navbar">
+    <a href="#" class="nav-brand" aria-label="ibelieve.world">
+      <img src="logo.png" alt="ibelieve.world" />
+      <span class="pixel">ibelieve.world</span>
+    </a>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+
+    <div class="nav-right" id="navRight">
+      <ul class="nav-links">
+        <li><a href="index.html#products">Products</a></li>
+        <li><a href="about.html">About</a></li>
+      </ul>
+
+      <div class="nav-icons">
+        <a href="https://github.com/Hanbrar" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/>
+          </svg>
+        </a>
+        <a href="https://x.com/ItsHB17" target="_blank" rel="noopener noreferrer" aria-label="X">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.253 5.622 4.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ==================== HERO ==================== -->
+  <section id="hero">
+    <div class="hero-inner">
+      <img src="logo.png" alt="ibelieve.world rose logo" class="hero-logo" />
+      <h1 class="pixel">
+        ibelieve<span class="dot">.</span>world
+      </h1>
+      <p class="hero-tagline">
+        We are an AI lab experimenting in developing user focused AI and technology products to improve the productivity and efficiency of users on a daily basis.
+      </p>
+      <div class="hero-ctas">
+        <a href="#products" class="btn btn-primary">
+          View Products
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </a>
+        <a href="about.html" class="btn btn-ghost">About the Lab</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== PRODUCTS ==================== -->
+  <section id="products" class="section">
+    <div class="section-inner">
+
+      <div class="products-header">
+        <span class="eyebrow">Products</span>
+        <h2 class="pixel">What we're building</h2>
+        <p>Tools designed to make everyday work faster, sharper, and more human.</p>
+      </div>
+
+      <div class="products-grid">
+
+        <!-- DeepConverge -->
+        <article class="product-card">
+          <div class="card-top">
+            <div class="card-logo">
+              <img src="deepconverge.png" alt="DeepConverge logo" />
+            </div>
+            <div>
+              <span class="card-tag">Multi-Agent AI</span>
+              <h3 class="pixel">DeepConverge</h3>
+            </div>
+          </div>
+          <p>
+            An AI platform where three specialized agents (Advocate, Critic, and Judge) debate in real time to produce higher quality answers through structured adversarial reasoning.
+          </p>
+          <div class="card-actions">
+            <a href="https://deepconverge.ai" target="_blank" rel="noopener noreferrer" class="card-primary">
+              Visit site
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </a>
+            <a href="https://github.com/Hanbrar/DeepConverge" target="_blank" rel="noopener noreferrer" class="card-secondary" aria-label="DeepConverge GitHub">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/>
+              </svg>
+              GitHub
+            </a>
+          </div>
+        </article>
+
+        <!-- SuperflowAI -->
+        <article class="product-card">
+          <div class="card-top">
+            <div class="card-logo">
+              <img src="SuperflowAI.png" alt="SuperflowAI logo" />
+            </div>
+            <div>
+              <span class="card-tag">Voice Dictation</span>
+              <h3 class="pixel">SuperflowAI</h3>
+            </div>
+          </div>
+          <p>
+            Free, open source Windows voice dictation. Hold Ctrl + Alt + Space to record, release to transcribe and paste anywhere. Fast, offline capable, with session transcripts and PDF export.
+          </p>
+          <div class="card-actions">
+            <a href="https://superflow-ai.vercel.app/" target="_blank" rel="noopener noreferrer" class="card-primary">
+              Visit site
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </a>
+            <a href="https://github.com/Hanbrar/SuperflowAI" target="_blank" rel="noopener noreferrer" class="card-secondary" aria-label="SuperflowAI GitHub">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/>
+              </svg>
+              GitHub
+            </a>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer>
+    <div class="footer-inner">
+      <a href="#" class="footer-brand">
+        <img src="logo.png" alt="ibelieve.world" />
+        <span class="pixel">ibelieve.world</span>
+      </a>
+
+      <p class="footer-copy">&copy; 2026 ibelieve.world. All rights reserved.</p>
+
+      <div class="footer-icons">
+        <a href="https://github.com/Hanbrar" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/>
+          </svg>
+        </a>
+        <a href="https://x.com/ItsHB17" target="_blank" rel="noopener noreferrer" aria-label="X">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.253 5.622 4.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== JS ==================== -->
+  <script>
+    /* Mobile nav toggle */
+    const navToggle = document.getElementById('navToggle');
+    const navRight  = document.getElementById('navRight');
+
+    navToggle.addEventListener('click', () => {
+      const open = navRight.classList.toggle('open');
+      navToggle.classList.toggle('open', open);
+      navToggle.setAttribute('aria-expanded', open);
+    });
+
+    navRight.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        navRight.classList.remove('open');
+        navToggle.classList.remove('open');
+        navToggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    /* GSAP — restrained, editorial entrances only */
+    window.addEventListener('load', () => {
+      if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+      gsap.registerPlugin(ScrollTrigger);
+
+      // Hero entrance
+      const heroTl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      heroTl
+        .from(".hero-logo",     { opacity: 0, y: 20, duration: 1.0 })
+        .from(".hero-inner h1", { opacity: 0, y: 16, duration: 0.8 }, "-=0.6")
+        .from(".hero-tagline",  { opacity: 0, y: 12, duration: 0.8 }, "-=0.5")
+        .from(".hero-ctas",     { opacity: 0, y: 12, duration: 0.7 }, "-=0.5");
+
+      // Products
+      gsap.from(".products-header", {
+        opacity: 0, y: 24, duration: 0.8,
+        scrollTrigger: { trigger: "#products", start: "top 82%" }
+      });
+
+      gsap.from(".product-card", {
+        opacity: 0, y: 40, duration: 0.8, stagger: 0.15,
+        scrollTrigger: { trigger: ".products-grid", start: "top 85%" }
+      });
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,77 @@
+You are building a professional, visually stunning landing page for ibelieve.world — an AI lab focused on user-centered productivity tools.
+
+BRAND IDENTITY
+- Company name: ibelieve.world
+- Tagline: "We are an AI lab experimenting in developing user-focused AI and technology products to improve the productivity and efficiency of users on a daily basis."
+- Logo: logo.png (provided) — match the color palette and typography style of the logo throughout the entire site
+- Header font: pixel font (e.g. Press Start 2P from Google Fonts)
+- Overall aesthetic: match styleUI.png exactly — use it as the primary visual reference for colors, spacing, card style, and UI components
+
+LAYOUT STRUCTURE (single-page, top to bottom)
+
+1. NAVBAR
+   - Left: logo.png + text "ibelieve.world" in pixel font
+   - Right nav links: Products | GitHub | X (Twitter)
+   - Sticky on scroll, minimal, dark or matching brand background
+
+2. HERO SECTION
+   - Large headline using pixel font
+   - Tagline text below (body font, readable)
+   - Subtle background animation (particles, grid pulse, or glowing orbs — match animation.png for reference)
+   - Clean, centered layout
+
+3. PRODUCTS SECTION (titled "Products")
+   - Display one card per product, laid out in a responsive grid
+   - Each card contains:
+       - Product logo (provided as [ProductName].png)
+       - Product name
+       - Short description (pulled from the product's README.md)
+       - A clickable area — the entire card is clickable and opens the product page or repo
+   - Cards should have hover animations (lift, glow, or border highlight — match styleUI.png style)
+   - Products will be added progressively — design the grid to scale cleanly from 1 to many cards
+
+4. FOOTER
+   - Minimal: ibelieve.world logo + copyright + links to GitHub and X
+
+ASSETS PROVIDED
+- logo.png — main brand logo
+- styleUI.png — primary UI style reference (colors, card style, typography feel)
+- ui.png / UI.png — additional layout reference
+- animation.png — reference for background animation style
+- [ProductName].png — one logo file per product
+- README.md files — one per product, use the content for the product description on each card
+
+TECHNICAL REQUIREMENTS
+- Single HTML file with embedded CSS and JS
+- Fully responsive (mobile, tablet, desktop)
+- Smooth scroll behavior
+- Font: load pixel font (Press Start 2P) from Google Fonts CDN for headings, use Inter or a clean sans-serif for body text
+- No placeholder content — use actual logo and README content provided
+- Code must be production-ready, clean, and well-commented
+
+ANIMATION STACK — follow this exactly, do not substitute or simplify
+The animation stack is: CSS transitions + GSAP (via CDN) + tsParticles (via CDN). Do not use React, Vue, or any JS framework. Do not use jQuery. Load all libraries via CDN script tags in the HTML head.
+
+1. CSS TRANSITIONS & ANIMATIONS
+   - Use CSS for all hover effects: card lift (translateY), glow (box-shadow), border highlight
+   - Use CSS keyframes for any looping effects (pulse, fade, shimmer)
+   - This is the base layer — fast, zero-overhead, no JS needed
+
+2. GSAP (GreenSock Animation Platform)
+   - CDN: https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js
+   - ScrollTrigger plugin CDN: https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js
+   - Use GSAP for: hero section entrance animation (headline + tagline fading/sliding in on load), product cards animating in as the user scrolls down to the Products section (staggered reveal using ScrollTrigger), and any other scroll-triggered sequences
+   - Example pattern for scroll-triggered card reveal:
+       gsap.from(".product-card", { opacity: 0, y: 60, duration: 0.8, stagger: 0.15, scrollTrigger: { trigger: "#products", start: "top 80%" } });
+
+3. tsParticles (background animation in the hero section)
+   - CDN: https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js
+   - Use tsParticles to render the background animation in the hero section only
+   - Configure particles to match animation.png reference: subtle, not distracting — small floating dots or connected node network, low opacity, matching brand colors from logo.png
+   - Initialize with tsParticles.load("tsparticles", { ... }) targeting a full-bleed div behind the hero content
+
+STYLE NOTES
+- Match the logo's color palette across the full page (extract dominant colors from logo.png)
+- The page should feel like a premium indie AI lab — not corporate, not generic
+- Prioritize visual polish: spacing, contrast, micro-animations, and typographic hierarchy
+- When in doubt, reference styleUI.png as the source of truth for visual decisions
