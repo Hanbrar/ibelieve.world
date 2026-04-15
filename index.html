@@ -901,7 +901,26 @@
         opacity: 0, y: 40, duration: 0.8, stagger: 0.15,
         scrollTrigger: { trigger: ".products-grid", start: "top 85%" }
       });
+
+      /* Handle deep-link hash (e.g. /#products coming from About).
+         We override the browser's initial hash jump because it collides with
+         GSAP entrance states and the sticky navbar offset. */
+      if (location.hash) {
+        const target = document.querySelector(location.hash);
+        if (target) {
+          ScrollTrigger.refresh();
+          requestAnimationFrame(() => {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+        }
+      }
     });
+
+    /* Prevent the browser's default hash jump on initial load so GSAP can set up cleanly */
+    if (location.hash) {
+      history.scrollRestoration = 'manual';
+      window.scrollTo(0, 0);
+    }
   </script>
 
 </body>
